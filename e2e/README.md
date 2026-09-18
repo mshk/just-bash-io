@@ -39,7 +39,7 @@ BENCH_ROWS=1000 BENCH_REPEATS=5 BENCH_TIMEOUT_MS=300000 npm run test:e2e
 | `BENCH_MAX_OUTPUT_TOKENS` | `32768` | Per-step output limit (must fit selected model) |
 | `BENCH_OUTPUT_DIR` | `benchmark-results/<timestamp>` | Report and artifact directory; use a new directory per run |
 
-The generated Japanese `REPORT.md` includes every measurement and paired median
+The generated English `REPORT.md` and Japanese `REPORT.ja.md` include the same measurements and paired median
 reductions only for byte-identical, successfully measured outputs. `results.json`
 contains raw metrics and hashes; input, expected and actual text files allow
 independent inspection. A mismatch, timeout, API error or incomplete usage fails

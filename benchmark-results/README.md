@@ -1,37 +1,39 @@
-# just-bash-io パフォーマンス検証結果
+# just-bash-io performance benchmark results
 
-2026年9月19日（JST）、`.env` の `OPENAI_API_KEY` を使い、実際の OpenAI API で18ケースを実行した。
-**CSV・HTML は同じ出力を保ったままトークンと時間を削減。Markdown は通常方式で転記ミスが発生し、同一出力での性能比較は成立しなかった。**
+[日本語](./README.ja.md)
 
-モデルは `gpt-4.1-mini-2025-04-14`。各形式300レコード、各方式3回。
-入力サイズは Markdown 38,477 bytes、CSV 24,280 bytes、HTML 42,967 bytes。
-編集内容は `PENDING_REVIEW` → `APPROVED` の一括置換で、それ以外の全内容を保持する。
+On September 19, 2026 (JST), 18 cases were run against the live OpenAI API using `OPENAI_API_KEY` from `.env`.
+**CSV and HTML used fewer tokens and finished faster while preserving identical outputs. The inline Markdown runs introduced transcription errors, so an identical-output performance comparison was not possible.**
 
-| 形式 | 通常方式の完全一致 | just-bash-io の完全一致 | 総トークン削減率 | 全体時間短縮率 |
+Model: `gpt-4.1-mini-2025-04-14`. Each format contains 300 records; each mode was run three times.
+Input sizes: Markdown 38,477 bytes, CSV 24,280 bytes, HTML 42,967 bytes.
+The edit replaces every `PENDING_REVIEW` with `APPROVED`, preserving all other content.
+
+| Format | Inline exact matches | just-bash-io exact matches | Total token reduction | Total time reduction |
 | --- | ---: | ---: | ---: | ---: |
-| Markdown | 0 / 3 | 3 / 3 | 比較不可 | 比較不可 |
+| Markdown | 0 / 3 | 3 / 3 | Not comparable | Not comparable |
 | CSV | 3 / 3 | 3 / 3 | 87.1% | 96.4% |
 | HTML | 3 / 3 | 3 / 3 | 92.6% | 98.0% |
 
-削減率・短縮率は、両方式で出力が期待値と完全一致したペアごとの比率の中央値。
+Reductions are medians of per-pair ratios, using only pairs where both modes exactly matched the expected output.
 
-| 形式 | 通常方式 総tokens中央値 | just-bash-io 総tokens中央値 | 通常方式 全体秒数中央値 | just-bash-io 全体秒数中央値 |
+| Format | Inline median total tokens | just-bash-io median total tokens | Inline median total seconds | just-bash-io median total seconds |
 | --- | ---: | ---: | ---: | ---: |
 | CSV | 18,712 | 2,406 | 71.89 | 2.68 |
 | HTML | 33,573 | 2,500 | 138.81 | 2.59 |
 
-Markdown の通常方式では、変更対象外の `**Keep**` が `**Keep」` に変化した。
-最初の不一致は各回それぞれ123行目、28行目、100行目。これをテスト失敗として検出した。
-したがって E2E の結果は **15 passed / 3 failed**、コマンド終了コードは1である。
-APIエラー・タイムアウト・usage欠落はなく、just-bash-io 側は9ケースすべて成功した。
+In the inline Markdown runs, unchanged text `**Keep**` became `**Keep」`.
+The first mismatches occurred on lines 123, 28 and 100 in the respective runs. The tests detected these as failures.
+The E2E result was therefore **15 passed / 3 failed**, with command exit code 1.
+There were no API errors, timeouts or missing usage records. All nine just-bash-io cases passed.
 
-少数回の合成データ・文字列置換に限定した結果である。入力キャッシュを含む総トークンを比較しており、料金削減率ではない。
-他の差分編集ツールや、意味理解を伴う編集での性能は検証していない。
+These findings are limited to a small sample of synthetic data and literal replacement tasks. Total tokens include cached input tokens; the percentages are not monetary cost reductions.
+Other patch tools and semantic editing workloads were not evaluated.
 
-- [全測定値・方法・制約](./2026-09-18T15-23-25.189Z/REPORT.md)
-- [機械可読の測定値・SHA-256](./2026-09-18T15-23-25.189Z/results.json)
-- [再実行手順と設定](../e2e/README.md)
+- [All measurements, methodology and limitations](./2026-09-18T15-23-25.189Z/REPORT.md)
+- [Machine-readable metrics and SHA-256 hashes](./2026-09-18T15-23-25.189Z/results.json)
+- [Reproduction instructions and settings](../e2e/README.md)
 
-実行コマンド: `npm run test:e2e`。通常の `npm test` では外部APIを呼ばない。
-オフラインテスト28件、型チェック、ビルドが成功。
-18測定の入出力ハッシュ、期待値との一致判定、トークン合計、時間の整合性を別途照合した。
+Run with `npm run test:e2e`. The regular `npm test` command does not call external APIs.
+At the time of the benchmark, all 28 offline tests, type checking and the build passed.
+Input/output hashes, expected-output equality, token totals and timing consistency were independently verified for all 18 measurements.

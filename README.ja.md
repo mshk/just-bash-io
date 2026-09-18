@@ -3,6 +3,7 @@
 大きな Markdown・CSV・HTML の編集を通常方式と比較する E2E テストは
 [実行ガイド](./e2e/README.md)を参照してください。`.env` の `OPENAI_API_KEY` を設定し
 `npm run test:e2e` を実行すると、出力の完全一致・使用トークン数・所要時間を Markdown にまとめます。
+実測結果は[日本語](./benchmark-results/README.ja.md)・[英語](./benchmark-results/README.md)で公開しています。
 
 **大量データを LLM のコンテキストに通さないための道具です。** `just-bash-io` は AI SDK のエージェントに
 [`just-bash`](https://www.npmjs.com/package/just-bash) のサンドボックス作業環境を与え、その両端に扉をつけます。

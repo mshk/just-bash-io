@@ -1,18 +1,20 @@
-# just-bash-io E2E パフォーマンス検証
+[日本語](./REPORT.ja.md)
 
-実行日時: 2026-09-18T15:40:03.434Z / Node: v22.22.3
-モデル: gpt-4.1-mini-2025-04-14 / temperature: 0 / 各形式 300 レコード × 3 回 / 最大出力 32768 tokens / timeout 180000 ms
+# just-bash-io E2E performance benchmark
 
-## 方法
+Generated at: 2026-09-18T15:40:03.434Z / Node: v22.22.3
+Model: gpt-4.1-mini-2025-04-14 / temperature: 0 / 300 records per format × 3 repetitions / max output 32768 tokens / timeout 180000 ms
 
-合成 Markdown・CSV・HTML 内の PENDING_REVIEW を APPROVED に一括置換する。変更対象以外の全バイトを保持する。期待値はホスト側で独立に生成し、モデルには渡さない。
-inline は loadData の全文をコンテキストに入れ、編集後の全文を deliverOutput の引数として生成する。just-bash-io は実際の offloadToolOutputs と createBashTools を使用し、モデルが選んだコマンドで編集したファイルを sink へ配信する。両方式で同じ入力・指示・モデルを使用する。
-各回は独立した会話と仮想FS。直列実行し、形式・反復ごとに方式の順序を交互にする。API自動リトライなし、最大8ステップ。初回の loadData は両方式で強制し、配信ツール呼び出し後に停止する。
-総トークンは全APIステップの usage の合算（ツール定義・結果・会話の再入力も含む）。cached は入力の内数で差し引かない。時間はツール環境作成開始から最後のAPIステップ終了まで、配信時間は sink/配信関数に全文が到着するまで。fixture生成・検証・ディスク保存は計測外。
+## Method
 
-## 実測
+Replace every PENDING_REVIEW with APPROVED in synthetic Markdown, CSV and HTML, preserving every other byte. Expected outputs are generated independently on the host and are not provided to the model.
+inline puts the complete loadData result into context and generates the entire edited document as deliverOutput arguments. just-bash-io uses the actual offloadToolOutputs and createBashTools APIs, edits the file using model-selected commands and delivers it through the sink. Both modes use identical inputs, instructions and model settings.
+Each run uses a fresh conversation and virtual filesystem. Runs are sequential, alternating mode order by format and repetition. Automatic API retries are disabled; conversations have at most eight steps. Both modes must call loadData first and stop after calling the delivery tool.
+Total tokens sum usage across all API steps, including tool definitions, results and conversation history sent again. Cached tokens are a subset of input tokens and are not subtracted. Total time runs from tool environment initialization to completion of the last API step; delivery time ends when the sink/delivery function receives the full document. Fixture generation, validation and disk writes are excluded.
 
-| 形式 | 回 | 方式 | 入力 bytes | 出力 bytes | 入力 tokens | cached | 出力 tokens | 総 tokens | 配信 秒 | 全体 秒 | API steps | tool calls | 完全一致 | usage完全 | エラー |
+## Measurements
+
+| Format | Run | Mode | Input bytes | Output bytes | Input tokens | Cached | Output tokens | Total tokens | Delivery seconds | Total seconds | API steps | Tool calls | Exact match | Complete usage | Error |
 | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- | --- |
 | markdown | 1 | inline | 38477 | 37459 | 14144 | 0 | 13739 | 27883 | 115.21 | 115.22 | 2 | 2 | FAIL | yes | — |
 | markdown | 1 | just-bash-io | 38477 | 37277 | 16550 | 0 | 112 | 16662 | 5.84 | 5.84 | 3 | 4 | PASS | yes | — |
@@ -33,20 +35,20 @@ inline は loadData の全文をコンテキストに入れ、編集後の全文
 | html | 3 | inline | 42967 | 41767 | 16737 | 16512 | 16836 | 33573 | 132.56 | 132.56 | 2 | 2 | PASS | yes | — |
 | html | 3 | just-bash-io | 42967 | 41767 | 2427 | 0 | 73 | 2500 | 2.59 | 2.59 | 3 | 3 | PASS | yes | — |
 
-## 同一アウトプットの比較
+## Comparison with identical outputs
 
-両方式が期待値と完全一致し usage が取得できたペアのみ集計。削減率はペアごとの (1 − just-bash-io / inline) の中央値。失敗ペアを成功として扱わない。
+Only pairs where both modes exactly match the expected output and have complete usage are included. Reductions are the median of the per-pair ratios (1 − just-bash-io / inline). Failed pairs are not treated as successes.
 
-| 形式 | 成功ペア / 予定 | 総トークン削減率 中央値 | 全体時間短縮率 中央値 |
+| Format | Successful / planned pairs | Median total token reduction | Median total time reduction |
 | --- | ---: | ---: | ---: |
-| markdown | 0 / 3 | 比較不可 | 比較不可 |
+| markdown | 0 / 3 | Not comparable | Not comparable |
 | csv | 3 / 3 | 87.1% | 96.4% |
 | html | 3 / 3 | 92.6% | 98.0% |
 
-## 検証範囲と制約
+## Scope and limitations
 
-完了測定: 18 / 18。完全一致: 15。
-これは全文をモデルが読み書きする通常方式と、ファイルへの退避・コマンド編集・直接配信を組み合わせた方式の比較。just-bash 単体、差分編集ツール、他のファイル編集エージェントに対する優位性は検証していない。
-一括文字列置換の合成データに限定した測定であり、意味理解を伴う複雑な編集性能は示さない。少数回の実行・ネットワーク・API負荷・プロンプトキャッシュ・プロセス内の初期化キャッシュによる変動がある。キャッシュは無効化していない。金額への換算は行わない。
-タイムアウト等の失敗では完了ステップ分しか usage が取得できず、実際の課金トークンを過小計上する可能性がある。その行の usage完全は no とし比較から除外する。
-同じディレクトリの results.json に全測定・SHA-256を、*.input.txt / *.expected.txt / *.actual.txt に比較対象を保存。キーや .env の内容は保存しない。
+Completed measurements: 18 / 18. Exact matches: 15.
+This compares full-document model transcription with the combined offload, command editing and direct delivery workflow. It does not establish superiority of just-bash alone or compare against patch tools or other file-editing agents.
+The workload is limited to bulk literal replacement in synthetic data; it does not measure complex semantic editing. Results vary with the small sample size, network conditions, API load, prompt caching and in-process initialization caches. Caching is not disabled. No monetary cost conversion is made.
+For failures such as timeouts, usage may cover only completed steps and undercount actual billable tokens. Such rows are marked no under Complete usage and excluded from comparisons.
+The same directory contains all measurements and SHA-256 hashes in results.json, plus comparison artifacts in *.input.txt, *.expected.txt and *.actual.txt. API keys and .env contents are not saved.
