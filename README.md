@@ -12,6 +12,26 @@ The model decides *how* to transform the data. It never has to carry the data it
 
 [日本語版 README](./README.ja.md)
 
+## Benchmark
+
+With `gpt-4.1-mini-2025-04-14`, 300 records per format and three runs per mode,
+CSV and HTML edits produced identical outputs with these median per-pair reductions:
+
+| Format | Total token reduction | Total time reduction |
+| --- | ---: | ---: |
+| CSV | 87.1% | 96.4% |
+| HTML | 92.6% | 98.0% |
+
+For Markdown, all three inline runs introduced transcription errors; all three
+just-bash-io runs matched exactly. No identical-output performance comparison is
+reported for Markdown. This benchmark measures literal replacement in synthetic data.
+
+For an opt-in live OpenAI comparison of large Markdown, CSV and HTML edits, see
+[the E2E benchmark](./e2e/README.md). Run `npm run test:e2e` with `OPENAI_API_KEY`
+in `.env` to produce a Markdown report of exact output equality, tokens and latency.
+See the recorded results in [English](./benchmark-results/README.md) or
+[Japanese](./benchmark-results/README.ja.md).
+
 ## Why
 
 The usual agent loop makes every byte round-trip through the model:
@@ -166,12 +186,6 @@ npm install
 npm test
 npm run build
 ```
-
-For an opt-in live OpenAI comparison of large Markdown, CSV and HTML edits, see
-[the E2E benchmark](./e2e/README.md). Run `npm run test:e2e` with `OPENAI_API_KEY`
-in `.env` to produce a Markdown report of exact output equality, tokens and latency.
-See the recorded results in [English](./benchmark-results/README.md) or
-[Japanese](./benchmark-results/README.ja.md).
 
 ## License
 

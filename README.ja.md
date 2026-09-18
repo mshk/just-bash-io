@@ -1,10 +1,5 @@
 # just-bash-io
 
-大きな Markdown・CSV・HTML の編集を通常方式と比較する E2E テストは
-[実行ガイド](./e2e/README.md)を参照してください。`.env` の `OPENAI_API_KEY` を設定し
-`npm run test:e2e` を実行すると、出力の完全一致・使用トークン数・所要時間を Markdown にまとめます。
-実測結果は[日本語](./benchmark-results/README.ja.md)・[英語](./benchmark-results/README.md)で公開しています。
-
 **大量データを LLM のコンテキストに通さないための道具です。** `just-bash-io` は AI SDK のエージェントに
 [`just-bash`](https://www.npmjs.com/package/just-bash) のサンドボックス作業環境を与え、その両端に扉をつけます。
 
@@ -15,6 +10,24 @@
 モデルは「どう変換するか」だけを判断します。データ本体を運ぶ必要がありません。
 
 [English README](./README.md)
+
+## ベンチマーク
+
+`gpt-4.1-mini-2025-04-14`、各形式300レコード、各方式3回で測定しました。
+CSV・HTML は同じ出力を保ったまま、以下の削減率を達成しました（ペアごとの比率の中央値）。
+
+| 形式 | 総トークン削減率 | 全体時間短縮率 |
+| --- | ---: | ---: |
+| CSV | 87.1% | 96.4% |
+| HTML | 92.6% | 98.0% |
+
+Markdown は通常方式の3回すべてで転記ミスが発生し、just-bash-io は3回すべて完全一致しました。
+そのため Markdown の同一出力での性能比較は掲載していません。合成データの文字列置換に限定した測定です。
+
+大きな Markdown・CSV・HTML の編集を通常方式と比較する E2E テストは
+[実行ガイド](./e2e/README.md)を参照してください。`.env` の `OPENAI_API_KEY` を設定し
+`npm run test:e2e` を実行すると、出力の完全一致・使用トークン数・所要時間を Markdown にまとめます。
+実測結果は[日本語](./benchmark-results/README.ja.md)・[英語](./benchmark-results/README.md)で公開しています。
 
 ## なぜ必要か
 
