@@ -20,12 +20,14 @@ medians; reductions are medians of per-pair ratios. Arrows show **without → wi
 
 | Format | Total tokens | Total time | Token reduction | Time reduction |
 | --- | ---: | ---: | ---: | ---: |
+| Markdown | 27,883 → 3,714 | 109.52 s → 4.20 s | Not comparable | Not comparable |
 | CSV | 18,712 → 2,406 | 71.89 s → 2.68 s | 87.1% | 96.4% |
 | HTML | 33,573 → 2,500 | 138.81 s → 2.59 s | 92.6% | 98.0% |
 
 For Markdown, all three inline runs introduced transcription errors; all three
-just-bash-io runs matched exactly. No identical-output performance comparison is
-reported for Markdown. This benchmark measures literal replacement in synthetic data.
+just-bash-io runs matched exactly (0/3 → 3/3 exact matches). The Markdown row shows
+observed usage and time, including the failed inline outputs; reductions are not
+reported because the outputs differ. This benchmark measures literal replacement in synthetic data.
 
 For an opt-in live OpenAI comparison of large Markdown, CSV and HTML edits, see
 [the E2E benchmark](./e2e/README.md). Run `npm run test:e2e` with `OPENAI_API_KEY`
