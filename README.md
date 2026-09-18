@@ -15,12 +15,13 @@ The model decides *how* to transform the data. It never has to carry the data it
 ## Benchmark
 
 With `gpt-4.1-mini-2025-04-14`, 300 records per format and three runs per mode,
-CSV and HTML edits produced identical outputs with these median per-pair reductions:
+CSV and HTML edits produced identical outputs. Token counts and times below are
+medians; reductions are medians of per-pair ratios. Arrows show **without → with just-bash-io**.
 
-| Format | Total token reduction | Total time reduction |
-| --- | ---: | ---: |
-| CSV | 87.1% | 96.4% |
-| HTML | 92.6% | 98.0% |
+| Format | Total tokens | Total time | Token reduction | Time reduction |
+| --- | ---: | ---: | ---: | ---: |
+| CSV | 18,712 → 2,406 | 71.89 s → 2.68 s | 87.1% | 96.4% |
+| HTML | 33,573 → 2,500 | 138.81 s → 2.59 s | 92.6% | 98.0% |
 
 For Markdown, all three inline runs introduced transcription errors; all three
 just-bash-io runs matched exactly. No identical-output performance comparison is
