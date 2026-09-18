@@ -167,6 +167,10 @@ npm test
 npm run build
 ```
 
+For an opt-in live OpenAI comparison of large Markdown, CSV and HTML edits, see
+[the E2E benchmark](./e2e/README.md). Run `npm run test:e2e` with `OPENAI_API_KEY`
+in `.env` to produce a Markdown report of exact output equality, tokens and latency.
+
 ## License
 
 [MIT](./LICENSE) © mshk
